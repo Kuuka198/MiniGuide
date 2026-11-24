@@ -446,8 +446,7 @@
                 jp: '鳥居をくぐる前に一礼しましょう',
                 reading: 'โทริอิ โอะ คุกุรุ มาเอะ นิ อิจิเรย์ ชิมาโช',
                 tip: 'ก่อนเดินลอดเสาโทริอิควรหยุดโค้งคำนับ 1 ครั้ง และเดินชิดริมซ้ายหรือขวา ไม่เดินตรงกลางทางเดินเพราะถือเป็นทางเดินของเทพเจ้า'
-            },
-        ];
+            }
         ];
 
         // =========================================================================
@@ -593,24 +592,19 @@
             const item = PHRASES_DATA.find(p => p.id === id);
             if (!item) return;
 
-            // ตรวจสอบว่าเบราว์เซอร์รองรับ SpeechSynthesis หรือไม่
             if (!('speechSynthesis' in window)) {
                 showToast('เบราว์เซอร์นี้ไม่รองรับระบบอ่านออกเสียง กรุณาใช้ปุ่ม "ยื่นให้ดู" แทน', '⚠️');
                 return;
             }
 
-            // หยุดเสียงที่กำลังพูดอยู่ก่อนหน้า
             window.speechSynthesis.cancel();
 
-            // ตัดส่วนคำอธิบายในวงเล็บภาษาไทยออก (ถ้ามี) เพื่อให้เสียงอ่านเป็นธรรมชาติ
             const cleanText = item.jp.replace(/（.*?）/g, '');
-
             const utterance = new SpeechSynthesisUtterance(cleanText);
             utterance.lang = 'ja-JP';
-            utterance.rate = 0.9; // ปรับความเร็วให้อ่านช้าลงเล็กน้อยเพื่อความชัดเจน
+            utterance.rate = 0.9;
             utterance.pitch = 1.0;
 
-            // พยายามเลือกเสียงภาษาญี่ปุ่นที่เป็นธรรมชาติที่สุดในเครื่อง
             const voices = window.speechSynthesis.getVoices();
             const jpVoice = voices.find(v => v.lang.includes('ja-JP') || v.lang.includes('ja'));
             if (jpVoice) {
@@ -630,33 +624,44 @@
             utterance.onerror = () => {
                 currentSpeakingId = null;
                 renderPhrases();
-                showToast('ไม่สามารถเล่นเสียงได้ในขณะนี้ ลองกดอีกครั้งหรือใช้โหมดยื่นให้ดู', '⚠️');
+                showToast('ไม่สามารถออกเสียงภาษาญี่ปุ่นได้ในอุปกรณ์นี้', '⚠️');
             };
 
             window.speechSynthesis.speak(utterance);
         }
 
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        }
+
         // =========================================================================
-        // ส่วนที่ 4: ระบบหน้าต่างยื่นให้ดูเต็มจอ (Full-Screen Show Card Modal)
+        // ส่วนที่ 4: หน้าต่างแสดงผลเต็มหน้าจอสำหรับยื่นให้คนญี่ปุ่นดู (Show Modal)
         // =========================================================================
         function openShowModal(id) {
             const item = PHRASES_DATA.find(p => p.id === id);
             if (!item) return;
 
             const catObj = CATEGORIES.find(c => c.id === item.category);
-
             document.getElementById('modal-category').textContent = catObj ? `${catObj.icon} ${catObj.label}` : '';
             document.getElementById('modal-jp').textContent = item.jp;
             document.getElementById('modal-th').textContent = item.th;
-            document.getElementById('modal-reading').textContent = `คำอ่าน: ${item.reading}`;
-            document.getElementById('modal-tip').textContent = item.tip;
+            document.getElementById('modal-reading').textContent = `🗣️ ${item.reading}`;
 
-            // ผูกปุ่มฟังเสียงใน Modal
+            const tipBox = document.getElementById('modal-tip-box');
+            if (item.tip && item.tip.trim() !== '') {
+                document.getElementById('modal-tip').textContent = item.tip;
+                tipBox.classList.remove('hidden');
+            } else {
+                tipBox.classList.add('hidden');
+            }
+
             const modalSpeakBtn = document.getElementById('modal-speak-btn');
             modalSpeakBtn.onclick = () => speakJapanese(item.id);
 
             showModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden'; // ล็อกไม่ให้หน้าหลังเลื่อน
+            document.body.style.overflow = 'hidden';
         }
 
         function closeShowModal() {
@@ -664,46 +669,40 @@
             document.body.style.overflow = '';
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
+                currentSpeakingId = null;
+                renderPhrases();
             }
         }
 
         // =========================================================================
-        // ส่วนที่ 5: การจัดการ Event Listeners และฟังก์ชันเสริม
+        // ส่วนที่ 5: การค้นหา การรีเซ็ต และการแจ้งเตือน
         // =========================================================================
         function setupEventListeners() {
-            // ค้นหาแบบ Real-time
             searchInput.addEventListener('input', (e) => {
                 searchQuery = e.target.value;
-                if (searchQuery.length > 0) {
-                    clearSearchBtn.classList.remove('hidden');
-                } else {
-                    clearSearchBtn.classList.add('hidden');
-                }
+                clearSearchBtn.classList.toggle('hidden', searchQuery.length === 0);
                 renderPhrases();
             });
 
-            // ปุ่มล้างคำค้นหา
             clearSearchBtn.addEventListener('click', () => {
                 searchInput.value = '';
                 searchQuery = '';
                 clearSearchBtn.classList.add('hidden');
-                renderPhrases();
                 searchInput.focus();
+                renderPhrases();
             });
 
-            // ปิด Modal เมื่อคลิกพื้นที่ว่างด้านนอกกล่องขาว
             showModal.addEventListener('click', (e) => {
                 if (e.target === showModal) {
                     closeShowModal();
                 }
             });
 
-            // โหลดรายการเสียงล่วงหน้าสำหรับบางเบราว์เซอร์ (เช่น Chrome / Safari)
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.onvoiceschanged = () => {
-                    window.speechSynthesis.getVoices();
-                };
-            }
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !showModal.classList.contains('hidden')) {
+                    closeShowModal();
+                }
+            });
         }
 
         function resetFilters() {
@@ -715,22 +714,20 @@
             renderPhrases();
         }
 
-        // แสดงแถบแจ้งเตือนแบบนุ่มนวล
         let toastTimeout;
         function showToast(message, icon = 'ℹ️') {
             const toast = document.getElementById('toast-notification');
-            document.getElementById('toast-message').textContent = message;
             document.getElementById('toast-icon').textContent = icon;
-            
+            document.getElementById('toast-message').textContent = message;
+
             toast.classList.remove('hidden');
             clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => {
                 toast.classList.add('hidden');
-            }, 3500);
+            }, 3000);
         }
 
-        // เริ่มต้นทำงาน
-        window.addEventListener('DOMContentLoaded', initApp);
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
