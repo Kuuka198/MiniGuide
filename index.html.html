@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คู่มือสื่อสารทัวร์ญี่ปุ่น | 日本旅行フレーズ集</title>
+    <!-- นำเข้า Tailwind CSS สำหรับตกแต่งหน้าเว็บให้สวยงามและรองรับมือถือ -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- นำเข้าฟอนต์ภาษาไทย (Prompt / Inter) และภาษาญี่ปุ่น (Noto Sans JP) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'Inter', 'sans-serif'],
+                        jp: ['Noto Sans JP', 'sans-serif'],
+                    },
+                    colors: {
+                        // โทนสีสไตล์มินิมอลญี่ปุ่น (ครีมอ่อน, น้ำเงินคราม Indigo, แดงชาด Vermilion)
+                        washi: '#F8F7F4',
+                        indigoJp: {
+                            DEFAULT: '#1E3A5F',
+                            light: '#2C5282',
+                            dark: '#13263E'
+                        },
+                        vermilion: {
+                            DEFAULT: '#D94E34',
+                            light: '#FDECE8',
+                            hover: '#B83D26'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ซ่อนแถบเลื่อนแนวนอนของปุ่มหมวดหมู่แต่ยังเลื่อนนิ้วได้ลื่น */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* แอนิเมชันตอนกดฟังเสียง */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .speaking-active {
+            animation: pulse-ring 1.2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-washi text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- แถบแจ้งเตือนด้านบน (แทนการใช้ alert() แบบเดิม) -->
+    <div id="toast-notification" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 hidden transition-all duration-300">
+        <div class="bg-indigoJp text-white px-5 py-3 rounded-full shadow-lg text-sm font-medium flex items-center gap-2">
+            <span id="toast-icon">ℹ️</span>
+            <span id="toast-message">ข้อความแจ้งเตือน</span>
+        </div>
+    </div>
+
+    <!-- ส่วนหัวของแอปพลิเคชัน (Header) -->
+    <header class="bg-indigoJp text-white sticky top-0 z-30 shadow-md rounded-b-3xl">
+        <div class="max-w-2xl mx-auto px-4 pt-5 pb-4">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="bg-vermilion text-white text-xs font-bold px-2.5 py-0.5 rounded-full tracking-wide">TOUR GUIDE</span>
+                        <span class="font-jp text-xs text-slate-300 tracking-wider">日本旅行フレーズ集</span>
+                    </div>
+                    <h1 class="text-xl sm:text-2xl font-bold mt-1 tracking-tight">คู่มือสื่อสารทัวร์ญี่ปุ่น</h1>
+                    <p class="text-xs sm:text-sm text-slate-300 font-light">ตัวช่วยสื่อสารหน้างานสำหรับลูกทัวร์และหัวหน้าทัวร์</p>
+                </div>
+                <!-- ไอคอนตกแต่งสไตล์ญี่ปุ่น -->
+                <div class="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 flex flex-col items-center justify-center shrink-0">
+                    <span class="font-jp font-bold text-lg text-vermilion leading-none">旅</span>
+                    <span class="text-[10px] text-slate-200 mt-0.5">JAPAN</span>
+                </div>
+            </div>
+
+            <!-- ช่องค้นหา (Live Search Bar) -->
+            <div class="relative mt-2">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input 
+                    type="text" 
+                    id="search-input" 
+                    placeholder="ค้นหาคำไทย, คำอ่าน หรือภาษาญี่ปุ่น (เช่น แพ้อาหาร, ห้องน้ำ)..." 
+                    class="w-full pl-10 pr-10 py-2.5 bg-white text-slate-800 placeholder-slate-400 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-vermilion shadow-inner"
+                >
+                <button 
+                    id="clear-search" 
+                    class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                    aria-label="ล้างคำค้นหา"
+                >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- แถบปุ่มกรองหมวดหมู่ (Category Filter Pills) -->
+        <div class="max-w-2xl mx-auto px-4 pb-3.5">
+            <div id="category-container" class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+                <!-- ปุ่มหมวดหมู่จะถูกสร้างอัตโนมัติจาก JavaScript -->
+            </div>
+        </div>
+    </header>
+
+    <!-- ส่วนแสดงผลรายการประโยคและคำศัพท์ (Main Content) -->
+    <main class="flex-1 max-w-2xl w-full mx-auto px-4 py-5">
+        <!-- แถบสรุปจำนวนผลลัพธ์ -->
+        <div class="flex items-center justify-between mb-3 px-1">
+            <span id="result-count" class="text-xs font-medium text-slate-500">กำลังโหลดข้อมูล...</span>
+            <span class="text-xs text-slate-400">กด "ยื่นให้ดู" เพื่อขยายเต็มจอ</span>
+        </div>
+
+        <!-- พื้นที่แสดงการ์ดประโยค -->
+        <div id="phrase-list" class="space-y-3.5">
+            <!-- การ์ดแต่ละใบจะถูกสร้างจาก JavaScript -->
+        </div>
+
+        <!-- หน้าจอเมื่อค้นหาไม่พบข้อมูล -->
+        <div id="empty-state" class="hidden text-center py-12 px-4 bg-white rounded-3xl border border-slate-200/80 shadow-sm mt-4">
+            <div class="text-4xl mb-3">🔍</div>
+            <h3 class="text-base font-semibold text-slate-700">ไม่พบประโยคหรือคำศัพท์ที่ค้นหา</h3>
+            <p class="text-xs text-slate-500 mt-1">ลองเปลี่ยนคำค้นหา หรือกดเลือกหมวดหมู่ "ทั้งหมด" เพื่อดูรายการทั้งหมด</p>
+            <button onclick="resetFilters()" class="mt-4 px-4 py-2 bg-indigoJp text-white text-xs font-medium rounded-xl hover:bg-indigoJp-light transition">
+                แสดงรายการทั้งหมด
+            </button>
+        </div>
+    </main>
+
+    <!-- ส่วนท้ายเว็บ (Footer) -->
+    <footer class="max-w-2xl w-full mx-auto px-4 py-6 text-center text-xs text-slate-400 border-t border-slate-200/70 mt-6">
+        <p class="font-medium text-slate-500">โปรเจกต์สหกิจศึกษา / ฝึกงาน สาขาวิชาภาษาญี่ปุ่น</p>
+        <p class="mt-1">ออกแบบเพื่อช่วยลดช่องว่างการสื่อสารระหว่างนักท่องเที่ยวไทยและผู้ให้บริการชาวญี่ปุ่น</p>
+    </footer>
+
+    <!-- หน้าต่างแสดงผลเต็มหน้าจอสำหรับยื่นให้คนญี่ปุ่นดู (Full-Screen Show Card Modal) -->
+    <div id="show-modal" class="fixed inset-0 z-50 hidden bg-indigoJp-dark/95 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-200">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- ส่วนบนของ Modal -->
+            <div class="bg-vermilion text-white px-5 py-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">📱</span>
+                    <span class="text-sm font-semibold">ยื่นหน้าจอนี้ให้พนักงานดู (お見せください)</span>
+                </div>
+                <button onclick="closeShowModal()" class="p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition" aria-label="ปิดหน้าต่าง">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- เนื้อหาตัวอักษรขนาดใหญ่ -->
+            <div class="p-6 sm:p-8 flex-1 overflow-y-auto flex flex-col justify-center text-center">
+                <span id="modal-category" class="inline-block mx-auto px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium mb-4">
+                    หมวดหมู่
+                </span>
+                
+                <!-- ประโยคภาษาญี่ปุ่นขนาดใหญ่ -->
+                <p id="modal-jp" class="font-jp text-2xl sm:text-4xl font-bold text-indigoJp leading-relaxed tracking-wide break-words">
+                    日本語のフレーズ
+                </p>
+
+                <hr class="my-5 border-slate-200">
+
+                <!-- ความหมายภาษาไทยและคำอ่าน -->
+                <p id="modal-th" class="text-lg sm:text-xl font-bold text-slate-800">
+                    ความหมายภาษาไทย
+                </p>
+                <p id="modal-reading" class="text-sm sm:text-base text-vermilion font-medium mt-1.5">
+                    คำอ่านภาษาไทย
+                </p>
+
+                <!-- คำแนะนำเพิ่มเติม -->
+                <div id="modal-tip-box" class="mt-5 bg-washi p-3.5 rounded-2xl text-left border border-slate-200/80">
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        <span class="font-semibold text-indigoJp">💡 เกร็ดภาษาและวัฒนธรรม:</span> 
+                        <span id="modal-tip">คำอธิบายเพิ่มเติม</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- ปุ่มด้านล่างของ Modal -->
+            <div class="p-4 bg-slate-50 border-t border-slate-200 flex gap-3">
+                <button id="modal-speak-btn" class="flex-1 py-3 px-4 bg-indigoJp hover:bg-indigoJp-light text-white font-medium rounded-2xl flex items-center justify-center gap-2 transition shadow-sm">
+                    <span>🔊</span>
+                    <span>ฟังเสียงอ่าน</span>
+                </button>
+                <button onclick="closeShowModal()" class="py-3 px-6 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-2xl transition">
+                    ปิด
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // ส่วนที่ 1: ฐานข้อมูลประโยคและคำศัพท์ (สามารถแก้ไขหรือเพิ่มรายการใหม่ได้ที่นี่)
+        // =========================================================================
+        const CATEGORIES = [
+            { id: 'all', label: 'ทั้งหมด', icon: '📚' },
+            { id: 'food', label: 'ร้านอาหาร & แพ้อาหาร', icon: '🍜' },
+            { id: 'shopping', label: 'ช้อปปิ้ง & Tax-Free', icon: '🛍️' },
+            { id: 'travel', label: 'เดินทาง & ห้องน้ำ', icon: '🚻' },
+            { id: 'emergency', label: 'ฉุกเฉิน & ป่วย', icon: '🏥' },
+            { id: 'etiquette', label: 'มารยาท & วัฒนธรรม', icon: '⛩️' }
+        ];
+
+        const PHRASES_DATA = [
+            // --- หมวดร้านอาหาร & แพ้อาหาร (food) ---
+            {
+                id: 1,
+                category: 'food',
+                th: 'ฉันแพ้อาหารทะเล (กุ้ง / ปู / หอย) กรุณาอย่าใส่ในอาหาร',
+                jp: '魚介類（エビ・カニ・貝類）のアレルギーがあります。料理に入れないでください。',
+                reading: 'เกียว-ไค-รุย (เอะ-บิ / คะ-นิ / ไค-รุย) โนะ อะ-เระ-รุ-กี้ กะ อะ-ริ-มัส. เรียว-ริ นิ อิ-เระ-ไน-เดะ คุ-ดะ-ไซ',
+                tip: 'คนญี่ปุ่นให้ความสำคัญกับเรื่องอาการแพ้อาหารมาก แนะนำให้กดปุ่ม "ยื่นให้ดู" เพื่อให้เชฟตรวจสอบส่วนผสมในน้ำซุปหรือซอสอย่างละเอียดครับ'
+            },
+            {
+                id: 2,
+                category: 'food',
+                th: 'ฉันไม่ทานเนื้อวัวและเนื้อหมู (ทานได้เฉพาะไก่/ปลา/ผัก)',
+                jp: '牛肉と豚肉は食べられません。鶏肉・魚・野菜は食べられます。',
+                reading: 'กิว-นิ-คุ โตะ บุ-ตะ-นิ-คุ วะ ทะ-เบะ-ระ-เระ-มะ-เซ็น. โทะ-ริ-นิ-คุ / ซะ-คะ-นะ / ยะ-ไซ วะ ทะ-เบะ-ระ-เระ-มัส',
+                tip: 'ใช้รูปประโยคสามารถ/ไม่สามารถ (〜られます / 〜られません) เพื่อสื่อสารข้อจำกัดด้านศาสนาหรือความเชื่อได้อย่างสุภาพและชัดเจน'
+            },
+            {
+                id: 3,
+                category: 'food',
+                th: 'ขอเมนูภาษาอังกฤษ หรือเมนูที่มีรูปภาพหน่อยครับ/ค่ะ',
+                jp: '英語のメニュー、または写真付きのメニューはありますか？',
+                reading: 'เอ-โกะ โนะ เม-นิว, มะ-ตะ-วะ ชะ-ชิน-สึ-คิ โนะ เม-นิว วะ อะ-ริ-มัส-กะ?',
+                tip: 'คำว่า 写真付き (ชะ-ชิน-สึ-คิ) แปลว่า "แบบมีรูปภาพประกอบ" ช่วยให้สั่งอาหารในร้านท้องถิ่นได้ง่ายขึ้นมาก'
+            },
+            {
+                id: 4,
+                category: 'food',
+                th: 'รบกวนคิดเงินด้วยครับ/ค่ะ (แยกจ่าย / จ่ายรวม)',
+                jp: 'お会計をお願いします。（別々で / 一緒で）',
+                reading: 'โอะ-ไค-เค โอะ โอะ-เนะ-ไง ชิ-มัส (เบ็ต-สึ-เบ็ต-สึ เดะ / อิช-โชะ เดะ)',
+                tip: 'ร้านอาหารญี่ปุ่นหลายร้านไม่รับแยกบิลตอนชำระเงินหน้าเคาน์เตอร์ ควรตกลงกันก่อน หรือพูดว่า 一緒で (อิช-โชะ เดะ = จ่ายรวมกัน) จะรวดเร็วกว่า'
+            },
+			{
+    id: 5,
+    category: 'food',
+    th: 'ไม่ทานเนื้อวัวครับ / ค่ะ (ขอเมนูที่ไม่มีเนื้อวัว)',
+    jp: '牛肉は食べられません。牛肉が入っていないメニューはありますか？',
+    reading: 'กิว-นิคุ วะ ทาเบะราเระมาเซ็น / กิว-นิคุ กะ ไฮตเตะ อิไน เมนู วะ อะริมัสึ กะ',
+    tip: 'คนไทยจำนวนมากไม่ทานเนื้อวัว ในญี่ปุ่นน้ำซุปราเมนหรือแกงกะหรี่บางร้านอาจเคี่ยวจากเนื้อวัว ควรถามพนักงานก่อนสั่ง'
+  },
+  {
+    id: 6,
+    category: 'food',
+    th: 'ขอน้ำเปล่าเพิ่มหน่อยครับ / ค่ะ',
+    jp: 'お水をいただけますか？',
+    reading: 'โอะ-มิซึ โอะ อิตาดาเคมัสึ กะ',
+    tip: 'ร้านอาหารในญี่ปุ่นส่วนใหญ่บริการน้ำเปล่าหรือชาเย็นฟรี ใช้รูปประโยค 〜をいただけますか เพื่อความสุภาพ'
+  },
+  {
+    id: 7,
+    category: 'food',
+    th: 'คิดเงินรวมกันเลยครับ / ค่ะ',
+    jp: 'お会計は一緒でお願いします。',
+    reading: 'โอะ-ไคเคย์ วะ อิชโชะ เดะ โอะเนะไงชิมัสึ',
+    tip: 'หากต้องการแยกจ่าย ให้เปลี่ยนคำว่า 一緒 (อิชโชะ = รวมกัน) เป็น 別々 (เบ็ตสึเบ็ตสึ = แยกกัน)'
+  },
+
+            // --- หมวดช้อปปิ้ง & Tax-Free (shopping) ---
+            {
+                id: 8,
+                category: 'shopping',
+                th: 'สามารถทำเรื่องยกเว้นภาษี (Tax-Free) ได้ไหมครับ/ค่ะ?',
+                jp: '免税（タックスフリー）の手続きはできますか？',
+                reading: 'เม็น-เซ (ทัก-คุ-สึ ฟุ-รี) โนะ เท็ต-สึ-ซึ-คิ วะ เดะ-คิ-มัส-กะ?',
+                tip: 'ต้องมียอดซื้อขั้นต่ำ 5,000 เยนขึ้นไป (ไม่รวมภาษี) ภายในวันเดียวกันและร้านเดียวกัน และต้องแสดงพาสปอร์ตตัวจริงเท่านั้น'
+            },
+            {
+                id: 9,
+                category: 'shopping',
+                th: 'มีสินค้าชิ้นใหม่ในสต็อกไหมครับ/ค่ะ? (ไม่อยากได้ตัวโชว์)',
+                jp: '新しい在庫はありますか？',
+                reading: 'อะ-ตะ-ระ-ชี ไซ-โกะ วะ อะ-ริ-มัส-กะ?',
+                tip: 'ใช้เวลาหยิบสินค้าตัวโชว์หน้าร้านแล้วต้องการกล่องใหม่ที่ยังไม่ถูกแกะ พนักงานจะไปเช็กในคลังสินค้าให้ทันที'
+            },
+            {
+                id: 10,
+                category: 'shopping',
+                th: 'ขอลองสวม / ลองไซซ์นี้หน่อยได้ไหมครับ/ค่ะ?',
+                jp: 'これを試着してもいいですか？',
+                reading: 'โคะ-เระ โอะ ชิ-ชะ-คุ ชิ-เตะ โมะ อี เดส-กะ?',
+                tip: 'ก่อนเข้าห้องลองเสื้อในญี่ปุ่น ต้องถอดรองเท้าก่อนเสมอ และหากเป็นผู้หญิง พนักงานมักจะยื่นผ้าคลุมหน้า (Face Cover) ให้สวมเพื่อกันเครื่องสำอางเปื้อนเสื้อผ้า'
+            },
+			{
+    id: 11,
+    category: 'shopping',
+    th: 'ทำ Tax-Free (ยกเว้นภาษี) ได้ไหมครับ / ค่ะ',
+    jp: '免税はできますか？',
+    reading: 'เมนเซย์ วะ เดคิมัสึ กะ',
+    tip: 'ต้องมียอดซื้อขั้นต่ำ 5,000 เยนขึ้นไป (ไม่รวมภาษี) ในร้านค้าเดียวกัน และต้องยื่นพาสปอร์ตตัวจริงเท่านั้น'
+  },
+  {
+    id: 12,
+    category: 'shopping',
+    th: 'มีสินค้าชิ้นใหม่ (ในสต็อก) ไหมครับ / ค่ะ',
+    jp: '新しい在庫はありますか？',
+    reading: 'อะตาราชี ไซโคะ วะ อะริมัสึ กะ',
+    tip: 'ใช้เมื่อเห็นสินค้าตัวโชว์มีรอย หรือต้องการหยิบชิ้นใหม่จากหลังร้าน'
+  },
+  {
+    id: 13,
+    category: 'shopping',
+    th: 'ขอถุงเล็กๆ แยกสำหรับใส่ของฝากหน่อยครับ / ค่ะ',
+    jp: '小分けの袋をいただけますか？',
+    reading: 'โคะวาเคะ โนะ ฟุคุโระ โอะ อิตาดาเคมัสึ กะ',
+    tip: 'ร้านขายของฝากในญี่ปุ่นมักมีบริการถุงเล็กให้ฟรีสำหรับแบ่งแจก แต่ถุงหิ้วใบใหญ่อาจมีค่าใช้จ่ายเพิ่ม'
+  },
+
+            // --- หมวดเดินทาง & ห้องน้ำ (travel) ---
+            {
+                id: 14,
+                category: 'travel',
+                th: 'ขอโทษครับ/ค่ะ ห้องน้ำอยู่ที่ไหนครับ/ค่ะ?',
+                jp: 'すみません、お手洗いはどこですか？',
+                reading: 'ซุ-มิ-มะ-เซ็น, โอะ-เทะ-อะ-ไร วะ โดะ-โคะ เดส-กะ?',
+                tip: 'คำว่า お手洗い (โอะ-เทะ-อะ-ไร) เป็นคำสุภาพกว่าคำว่า トイレ (ทอย-เระ) เหมาะสำหรับใช้ถามพนักงานในห้างหรือร้านอาหาร'
+            },
+            {
+                id: 15,
+                category: 'travel',
+                th: 'ช่วยถ่ายรูปให้พวกเราหน่อยได้ไหมครับ/ค่ะ?',
+                jp: 'すみませんが、写真を撮っていただけませんか？',
+                reading: 'ซุ-มิ-มะ-เซ็น-กะ, ชะ-ชิน โอะ ทต-เตะ อิ-ตะ-ดะ-เคะ-มะ-เซ็น-กะ?',
+                tip: 'รูปประโยค 〜ていただけませんか เป็นการขอร้องที่สุภาพมาก คนญี่ปุ่นส่วนใหญ่ยินดีช่วยถ่ายให้และมักจะกดชัตเตอร์ให้หลายรูป'
+            },
+            {
+                id: 16,
+                category: 'travel',
+                th: 'รถบัสทัวร์จอดอยู่ที่ไหนครับ/ค่ะ? (พร้อมยื่นรูป/ชื่อรถให้ดู)',
+                jp: '観光バスの駐車場はどこですか？',
+                reading: 'คัง-โค-บัส โนะ ชู-ชะ-โจ วะ โดะ-โคะ เดส-กะ?',
+                tip: 'แนะนำให้ลูกทัวร์ถ่ายรูปป้ายทะเบียนรถบัสและชื่อบริษัททัวร์ติดมือถือไว้เสมอ เพื่อใช้ยื่นประกอบคำถามนี้หากหลงทาง'
+            },
+			{
+    id: 17,
+    category: 'travel',
+    th: 'ที่จอดรถบัสท่องเที่ยวอยู่ทางไหนครับ / ค่ะ',
+    jp: '観光バスの駐車場はどこですか？',
+    reading: 'คังโค บัสึ โนะ ชูฉะโจ วะ โดโคะ เดสึ กะ',
+    tip: 'สำคัญมากสำหรับลูกทัวร์ที่เดินอิสระแล้วจำทางกลับไปที่จุดนัดพบรถบัสไม่ได้'
+  },
+  {
+    id: 18,
+    category: 'travel',
+    th: 'ขอโทษครับ / ค่ะ ห้องน้ำอยู่ที่ไหนครับ / ค่ะ',
+    jp: 'すみません、トイレはどこですか？',
+    reading: 'สุมิมาเซ็น โทอิเระ วะ โดโคะ เดสึ กะ',
+    tip: 'ขึ้นต้นด้วย すみません (สุมิมาเซ็น) เพื่อเรียกความสนใจอย่างสุภาพก่อนถามทาง'
+  },
+  {
+    id: 19,
+    category: 'travel',
+    th: 'ที่นี่ปิดกี่โมงครับ / ค่ะ',
+    jp: 'ここは閉館何時ですか？',
+    reading: 'โคโคะ วะ เฮย์คัง นันจิ เดสึ กะ',
+    tip: 'สถานที่ท่องเที่ยวและห้างสรรพสินค้าในญี่ปุ่นมักปิดเร็วกว่าไทย (ประมาณ 17.00 - 20.00 น.)'
+  },
+
+            // --- หมวดฉุกเฉิน & ป่วย (emergency) ---
+            {
+                id: 20,
+                category: 'emergency',
+                th: 'ฉันหลงทางกับกรุ๊ปทัวร์ รบกวนช่วยติดต่อไกด์ให้หน่อยได้ไหมครับ/ค่ะ?',
+                jp: 'ツアーのグループとはぐれてしまいました。ガイドに連絡していただけませんか？',
+                reading: 'ซึ-อา โนะ กุ-รุ-ปุ โตะ ฮะ-กุ-เระ-เตะ ชิ-ไม-มะ-ชิตะ. ไก-โดะ นิ เร็น-ระ-คุ ชิ-เตะ อิ-ตะ-ดะ-เคะ-มะ-เซ็น-กะ?',
+                tip: 'ควรจดเบอร์โทรศัพท์ญี่ปุ่นของหัวหน้าทัวร์ไว้ในมือถือ หากหลงทางให้เดินไปที่ป้อมตำรวจ (Koban) หรือเคาน์เตอร์ประชาสัมพันธ์แล้วยื่นหน้านี้ให้ดู'
+            },
+            {
+                id: 21,
+                category: 'emergency',
+                th: 'ฉันทำกระเป๋าสตางค์ / พาสปอร์ต / มือถือหายครับ/ค่ะ',
+                jp: '財布（パスポート / 携帯電話）をなくしてしまいました。',
+                reading: 'ไซ-ฟุ (พะ-สุ-โป-โตะ / เค-ไต-เด็น-วะ) โอะ นะ-คุ-ชิ-เตะ ชิ-ไม-มะ-ชิตะ',
+                tip: 'รูปไวยากรณ์ 〜てしまいました สื่อถึงความรู้สึกเสียดายหรือเหตุการณ์ไม่คาดฝันที่เกิดขึ้น ช่วยให้ผู้ฟังรับรู้ถึงความเร่งด่วนได้ทันที'
+            },
+            {
+                id: 22,
+                category: 'emergency',
+                th: 'ฉันปวดท้อง / ปวดหัว / มีไข้ ช่วยแนะนำยาให้หน่อยครับ/ค่ะ',
+                jp: '腹痛（頭痛 / 熱）があります。おすすめの薬を教えてください。',
+                reading: 'ฟุ-คุ-สึ (ซุ-สึ / เน็ต-สึ) กะ อะ-ริ-มัส. โอะ-ซุ-ซุ-เมะ โนะ คุ-ซุ-ริ โอะ โอะ-ชิ-เอะ-เตะ คุ-ดะ-ไซ',
+                tip: 'ใช้ยื่นให้เภสัชกรในร้านขายยา (Drugstore) ดูได้เลย โดยเภสัชกรจะซักถามเพิ่มเติมเรื่องอาการแพ้ยาหรืออายุของผู้ทาน'
+            },
+            {
+                id: 23,
+                category: 'emergency',
+                th: 'ช่วยเรียกรถพยาบาลให้หน่อยครับ/ค่ะ มีคนป่วยฉุกเฉิน!',
+                jp: '救急車を呼んでください！急病人がいます！',
+                reading: 'คิว-คิว-ชะ โอะ ยน-เดะ คุ-ดะ-ไซ! คิว-เบียว-นิน กะ อิ-มัส!',
+                tip: 'เบอร์ฉุกเฉินในญี่ปุ่น: 119 (รถพยาบาล / ดับเพลิง) และ 110 (แจ้งเหตุด่วนตำรวจ) โทรฟรีจากตู้สาธารณะและมือถือ'
+            },
+			{
+    id: 24,
+    category: 'emergency',
+    th: 'ฉันหลงทางครับ / ค่ะ ช่วยโทรหาเบอร์นี้ให้หน่อยได้ไหมครับ / ค่ะ',
+    jp: '道に迷いました。この番号に電話をかけてもらえますか？',
+    reading: 'มิจิ นิ มาโยอิมาชิตะ / โคโนะ บังโก นิ เด็นวะ โอะ คาเคะเตะ โมราเอมัสึ กะ',
+    tip: 'แนะนำให้ลูกทัวร์เปิดหน้านี้พร้อมยื่นนามบัตรโรงแรมหรือเบอร์ติดต่อหัวหน้าทัวร์ให้พนักงานร้านสะดวกซื้อหรือเจ้าหน้าที่สถานีช่วยโทรให้'
+  },
+  {
+    id: 25,
+    category: 'emergency',
+    th: 'ฉันทำกระเป๋าสตางค์ (พาสปอร์ต) หายครับ / ค่ะ',
+    jp: '財布（パスポート）をなくしました。',
+    reading: 'ไซฟุ (พาสึโปโตะ) โอะ นาคุชิมาชิตะ',
+    tip: 'รีบแจ้งหัวหน้าทัวร์และติดต่อป้อมตำรวจ (交番 - โคบัง) ที่ใกล้ที่สุดทันทีเพื่อทำเอกสารแจ้งหาย'
+  },
+  {
+    id: 26,
+    category: 'emergency',
+    th: 'ปวดหัว / มีไข้ / ปวดท้อง (ขอยาแก้ปวดหน่อยครับ / ค่ะ)',
+    jp: '頭が痛いです・熱があります・お腹が痛いです（薬をください）',
+    reading: 'อะตามะ กะ อิไต เดสึ / เน็ตสึ กะ อะริมัสึ / โอะนากะ กะ อิไต เดสึ (คุสึริ โอะ คุดาไซ)',
+    tip: 'ใช้ยื่นให้เภสัชกรในร้านขายยา (Drugstore) ดูอาการเบื้องต้น และควรแจ้งด้วยหากมีประวัติแพ้ยา'
+  },
+
+            // --- หมวดมารยาท & วัฒนธรรม (etiquette) ---
+            {
+                id: 27,
+                category: 'etiquette',
+                th: 'ขออภัยที่รบกวนครับ/ค่ะ (ใช้ทักทาย ขอทาง หรือเรียกพนักงาน)',
+                jp: 'すみません。',
+                reading: 'ซุ-มิ-มะ-เซ็น',
+                tip: 'คำสารพัดประโยชน์ของญี่ปุ่น ใช้ได้ทั้งเวลาเรียกพนักงานในร้านอาหาร ขอทางเวลาเดินเบียด และกล่าวขอโทษเล็กๆ น้อยๆ'
+            },
+            {
+                id: 28,
+                category: 'etiquette',
+                th: 'ข้อควรระวังในการแช่ออนเซ็น (ห้ามใส่ชุดว่ายน้ำ / ต้องล้างตัวก่อน)',
+                jp: '温泉のマナー：水着は着用禁止です。入浴前に体を洗ってください。',
+                reading: 'อน-เซ็น โนะ มะ-นา: มิ-ซึ-กิ วะ ชะ-คุ-โย คิน-ชิ เดส. นิว-โย-คุ มา-เอะ นิ คะ-ระ-ดะ โอะ อะ-รัต-เตะ คุ-ดะ-ไซ',
+                tip: 'กฎเหล็กของออนเซ็น: 1. ถอดเสื้อผ้าทั้งหมด 2. อาบน้ำสระผมให้สะอาดก่อนลงบ่อ 3. ห้ามนำผ้าขนหนูจุ่มลงในน้ำบ่อออนเซ็น และ 4. รวบผมยาวให้เรียบร้อย'
+            },
+            {
+                id: 29,
+                category: 'etiquette',
+                th: 'มารยาทบนรถไฟและรถบัส (งดคุยโทรศัพท์ / ปิดเสียง / ไม่ทานอาหาร)',
+                jp: '電車・バス内のマナー：通話はご遠慮ください。マナーモードに設定してください。',
+                reading: 'เด็น-ชะ / บัส-ไน โนะ มะ-นา: สึ-วะ วะ โกะ-เอ็น-เรียว คุ-ดะ-ไซ. มะ-นา-โม-โดะ นิ เซ็ต-เต ชิ-เตะ คุ-ดะ-ไซ',
+                tip: 'คนญี่ปุ่นให้ความสำคัญกับความเงียบในพื้นที่สาธารณะมาก ควรปรับมือถือเป็นระบบสั่น (Manner Mode) และลดเสียงสนทนาขณะโดยสารรถสาธารณะ'
+            }
+			{
+    id: 30,
+    category: 'culture',
+    th: 'มารยาทการทิ้งขยะในญี่ปุ่น (กรุณานำขยะกลับไปด้วย)',
+    jp: 'ゴミは持ち帰りましょう',
+    reading: 'โกมิ วะ โมจิคาเอริมาโช',
+    tip: 'ญี่ปุ่นแทบไม่มีถังขยะตามท้องถนน ควรพกถุงพลาสติกเล็กๆ เก็บขยะส่วนตัวไว้ทิ้งที่รถบัส โรงแรม หรือถังขยะหน้าร้านสะดวกซื้อที่ซื้อของ'
+  },
+  {
+    id: 31,
+    category: 'culture',
+    th: 'มารยาทการใช้รถไฟ (กรุณาตั้งเป็นโหมดปิดเสียง)',
+    jp: '電車内ではマナーモードにしましょう',
+    reading: 'เด็นฉะไน เดะ วะ มานา-โมโดะ นิ ชิมาโช',
+    tip: 'งดคุยโทรศัพท์บนรถไฟ ปรับมือถือเป็นโหมดสั่น และสะพายกระเป๋าเป้ไว้ด้านหน้าเมื่อขึ้นรถในช่วงคนแน่น'
+  },
+  {
+    id: 32,
+    category: 'culture',
+    th: 'ข้อควรระวังเรื่องการถ่ายรูป (กรุณาระวังจุดห้ามถ่ายรูป)',
+    jp: '撮影禁止の場所にご注意ください',
+    reading: 'ซัตสึเอ คินชิ โนะ บาโฉะ นิ โกะจูอิ คุดาไซ',
+    tip: 'หลีกเลี่ยงการถ่ายรูปติดใบหน้าคนญี่ปุ่นโดยตรง (กฎหมายคุ้มครองความเป็นส่วนตัวเข้มงวด) และสังเกตป้ายห้ามถ่ายรูปในวัดหรือร้านค้า'
+  },
+  {
+    id: 33,
+    category: 'culture',
+    th: 'มารยาทการแช่ออนเซ็น (ห้ามนำผ้าเช็ดตัวลงบ่อ)',
+    jp: 'タオルを湯船に入れないでください',
+    reading: 'ทาโอรุ โอะ ยุบุเนะ นิ อิเรไน เดะ คุดาไซ',
+    tip: 'ต้องล้างตัวให้สะอาดก่อนลงบ่อ ห้ามสวมชุดว่ายน้ำ และห้ามนำผ้าเช็ดตัวผืนเล็กลงไปแช่ในน้ำ (ให้วางบนศีรษะหรือขอบบ่อแทน)'
+  },
+  {
+    id: 34,
+    category: 'culture',
+    th: 'มารยาทการเข้าวัดและศาลเจ้า (กรุณาโค้งคำนับก่อนเข้า)',
+    jp: '鳥居をくぐる前に一礼しましょう',
+    reading: 'โทริอิ โอะ คุกุรุ มาเอะ นิ อิจิเรย์ ชิมาโช',
+    tip: 'ก่อนเดินลอดเสาโทริอิควรหยุดโค้งคำนับ 1 ครั้ง และเดินชิดริมซ้ายหรือขวา ไม่เดินตรงกลางทางเดินเพราะถือเป็นทางเดินของเทพเจ้า'
+  },
+        ];
+
+        // =========================================================================
+        // ส่วนที่ 2: ตัวแปรควบคุมสถานะ (State) และฟังก์ชันการทำงานของเว็บแอป
+        // =========================================================================
+        let currentCategory = 'all';
+        let searchQuery = '';
+        let currentSpeakingId = null;
+
+        // อ้างอิง DOM Elements
+        const categoryContainer = document.getElementById('category-container');
+        const phraseList = document.getElementById('phrase-list');
+        const searchInput = document.getElementById('search-input');
+        const clearSearchBtn = document.getElementById('clear-search');
+        const resultCount = document.getElementById('result-count');
+        const emptyState = document.getElementById('empty-state');
+        const showModal = document.getElementById('show-modal');
+
+        // ฟังก์ชันเริ่มต้นทำงานเมื่อโหลดหน้าเว็บ
+        function initApp() {
+            renderCategories();
+            renderPhrases();
+            setupEventListeners();
+        }
+
+        // สร้างปุ่มกรองหมวดหมู่
+        function renderCategories() {
+            categoryContainer.innerHTML = CATEGORIES.map(cat => {
+                const isActive = cat.id === currentCategory;
+                const activeClasses = isActive 
+                    ? 'bg-vermilion text-white shadow-sm font-semibold' 
+                    : 'bg-white/10 text-slate-200 hover:bg-white/20 font-normal';
+                
+                return `
+                    <button 
+                        onclick="selectCategory('${cat.id}')"
+                        class="px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 ${activeClasses}"
+                    >
+                        <span>${cat.icon}</span>
+                        <span>${cat.label}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // เลือกหมวดหมู่
+        function selectCategory(catId) {
+            currentCategory = catId;
+            renderCategories();
+            renderPhrases();
+        }
+
+        // กรองและแสดงผลการ์ดประโยค
+        function renderPhrases() {
+            const query = searchQuery.trim().toLowerCase();
+            
+            const filtered = PHRASES_DATA.filter(item => {
+                const matchCategory = currentCategory === 'all' || item.category === currentCategory;
+                const matchSearch = !query || 
+                    item.th.toLowerCase().includes(query) || 
+                    item.jp.toLowerCase().includes(query) || 
+                    item.reading.toLowerCase().includes(query) ||
+                    item.tip.toLowerCase().includes(query);
+                return matchCategory && matchSearch;
+            });
+
+            // อัปเดตตัวเลขจำนวนผลลัพธ์
+            resultCount.textContent = `พบ ${filtered.length} รายการ`;
+
+            // จัดการกรณีไม่พบข้อมูล
+            if (filtered.length === 0) {
+                phraseList.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // สร้าง HTML ของการ์ดแต่ละใบ
+            phraseList.innerHTML = filtered.map(item => {
+                const catObj = CATEGORIES.find(c => c.id === item.category);
+                const isSpeaking = currentSpeakingId === item.id;
+
+                return `
+                    <article class="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-200/80 hover:border-indigoJp/30 transition-all">
+                        <!-- แถบบน: ป้ายหมวดหมู่ -->
+                        <div class="flex items-center justify-between gap-2 mb-2.5">
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600">
+                                <span>${catObj ? catObj.icon : '📌'}</span>
+                                <span>${catObj ? catObj.label : ''}</span>
+                            </span>
+                            <span class="text-[11px] text-slate-400 font-mono">#${String(item.id).padStart(2, '0')}</span>
+                        </div>
+
+                        <!-- ความหมายภาษาไทย -->
+                        <h2 class="text-base sm:text-lg font-bold text-slate-800 leading-snug">
+                            ${item.th}
+                        </h2>
+
+                        <!-- ประโยคภาษาญี่ปุ่น -->
+                        <div class="mt-2.5 p-3 bg-indigoJp/5 rounded-2xl border border-indigoJp/10">
+                            <p class="font-jp text-lg sm:text-xl font-bold text-indigoJp leading-relaxed">
+                                ${item.jp}
+                            </p>
+                            <p class="text-xs sm:text-sm text-vermilion font-medium mt-1">
+                                🗣️ ${item.reading}
+                            </p>
+                        </div>
+
+                        <!-- เกร็ดความรู้ / คำแนะนำการใช้งาน -->
+                        <div class="mt-3 flex items-start gap-2 text-xs text-slate-500 bg-washi p-2.5 rounded-xl">
+                            <span class="shrink-0 mt-0.5">💡</span>
+                            <p class="leading-relaxed">${item.tip}</p>
+                        </div>
+
+                        <!-- ปุ่มกดใช้งาน: ฟังเสียง และ ยื่นให้ดูเต็มจอ -->
+                        <div class="mt-3.5 pt-3 border-t border-slate-100 flex gap-2.5">
+                            <button 
+                                onclick="speakJapanese(${item.id})"
+                                id="speak-btn-${item.id}"
+                                class="flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5 transition ${isSpeaking ? 'bg-vermilion text-white speaking-active' : 'bg-indigoJp/10 text-indigoJp hover:bg-indigoJp hover:text-white'}"
+                            >
+                                <span>🔊</span>
+                                <span>${isSpeaking ? 'กำลังออกเสียง...' : 'ฟังเสียงญี่ปุ่น'}</span>
+                            </button>
+                            <button 
+                                onclick="openShowModal(${item.id})"
+                                class="flex-1 py-2.5 px-3 rounded-xl bg-vermilion text-white hover:bg-vermilion-hover text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5 shadow-sm transition"
+                            >
+                                <span>📱</span>
+                                <span>ยื่นให้ดู</span>
+                            </button>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        // =========================================================================
+        // ส่วนที่ 3: ระบบออกเสียงภาษาญี่ปุ่นอัตโนมัติ (Web Speech API)
+        // =========================================================================
+        function speakJapanese(id) {
+            const item = PHRASES_DATA.find(p => p.id === id);
+            if (!item) return;
+
+            // ตรวจสอบว่าเบราว์เซอร์รองรับ SpeechSynthesis หรือไม่
+            if (!('speechSynthesis' in window)) {
+                showToast('เบราว์เซอร์นี้ไม่รองรับระบบอ่านออกเสียง กรุณาใช้ปุ่ม "ยื่นให้ดู" แทน', '⚠️');
+                return;
+            }
+
+            // หยุดเสียงที่กำลังพูดอยู่ก่อนหน้า
+            window.speechSynthesis.cancel();
+
+            // ตัดส่วนคำอธิบายในวงเล็บภาษาไทยออก (ถ้ามี) เพื่อให้เสียงอ่านเป็นธรรมชาติ
+            const cleanText = item.jp.replace(/（.*?）/g, '');
+
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = 'ja-JP';
+            utterance.rate = 0.9; // ปรับความเร็วให้อ่านช้าลงเล็กน้อยเพื่อความชัดเจน
+            utterance.pitch = 1.0;
+
+            // พยายามเลือกเสียงภาษาญี่ปุ่นที่เป็นธรรมชาติที่สุดในเครื่อง
+            const voices = window.speechSynthesis.getVoices();
+            const jpVoice = voices.find(v => v.lang.includes('ja-JP') || v.lang.includes('ja'));
+            if (jpVoice) {
+                utterance.voice = jpVoice;
+            }
+
+            utterance.onstart = () => {
+                currentSpeakingId = id;
+                renderPhrases();
+            };
+
+            utterance.onend = () => {
+                currentSpeakingId = null;
+                renderPhrases();
+            };
+
+            utterance.onerror = () => {
+                currentSpeakingId = null;
+                renderPhrases();
+                showToast('ไม่สามารถเล่นเสียงได้ในขณะนี้ ลองกดอีกครั้งหรือใช้โหมดยื่นให้ดู', '⚠️');
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // =========================================================================
+        // ส่วนที่ 4: ระบบหน้าต่างยื่นให้ดูเต็มจอ (Full-Screen Show Card Modal)
+        // =========================================================================
+        function openShowModal(id) {
+            const item = PHRASES_DATA.find(p => p.id === id);
+            if (!item) return;
+
+            const catObj = CATEGORIES.find(c => c.id === item.category);
+
+            document.getElementById('modal-category').textContent = catObj ? `${catObj.icon} ${catObj.label}` : '';
+            document.getElementById('modal-jp').textContent = item.jp;
+            document.getElementById('modal-th').textContent = item.th;
+            document.getElementById('modal-reading').textContent = `คำอ่าน: ${item.reading}`;
+            document.getElementById('modal-tip').textContent = item.tip;
+
+            // ผูกปุ่มฟังเสียงใน Modal
+            const modalSpeakBtn = document.getElementById('modal-speak-btn');
+            modalSpeakBtn.onclick = () => speakJapanese(item.id);
+
+            showModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // ล็อกไม่ให้หน้าหลังเลื่อน
+        }
+
+        function closeShowModal() {
+            showModal.classList.add('hidden');
+            document.body.style.overflow = '';
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        // =========================================================================
+        // ส่วนที่ 5: การจัดการ Event Listeners และฟังก์ชันเสริม
+        // =========================================================================
+        function setupEventListeners() {
+            // ค้นหาแบบ Real-time
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value;
+                if (searchQuery.length > 0) {
+                    clearSearchBtn.classList.remove('hidden');
+                } else {
+                    clearSearchBtn.classList.add('hidden');
+                }
+                renderPhrases();
+            });
+
+            // ปุ่มล้างคำค้นหา
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                searchQuery = '';
+                clearSearchBtn.classList.add('hidden');
+                renderPhrases();
+                searchInput.focus();
+            });
+
+            // ปิด Modal เมื่อคลิกพื้นที่ว่างด้านนอกกล่องขาว
+            showModal.addEventListener('click', (e) => {
+                if (e.target === showModal) {
+                    closeShowModal();
+                }
+            });
+
+            // โหลดรายการเสียงล่วงหน้าสำหรับบางเบราว์เซอร์ (เช่น Chrome / Safari)
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.onvoiceschanged = () => {
+                    window.speechSynthesis.getVoices();
+                };
+            }
+        }
+
+        function resetFilters() {
+            currentCategory = 'all';
+            searchQuery = '';
+            searchInput.value = '';
+            clearSearchBtn.classList.add('hidden');
+            renderCategories();
+            renderPhrases();
+        }
+
+        // แสดงแถบแจ้งเตือนแบบนุ่มนวล
+        let toastTimeout;
+        function showToast(message, icon = 'ℹ️') {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-message').textContent = message;
+            document.getElementById('toast-icon').textContent = icon;
+            
+            toast.classList.remove('hidden');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+
+        // เริ่มต้นทำงาน
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
