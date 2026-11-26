@@ -1180,10 +1180,7 @@
                 jp: 'いろいろお世話になりました。ありがとうございました。',
                 reading: 'อิ-โระ-อิ-โระ โอะ-เซะ-วะ นิ นะ-ริ-มะ-ชิตะ. อะ-ริ-งะ-โต โกะ-ไซ-มัส',
                 tip: 'ประโยคขอบคุณที่อบอุ่นและสุภาพมาก ใช้กล่าวกับคนขับรถบัส พนักงานโรงแรม หรือผู้ที่ดูแลเราตลอดทริปครับ'
-            }
-        ];// =========================================================================
-            // ชุดเพิ่มเติม: ข้อ 121 - 150 (ต่อท้ายข้อ 120 ได้ทันที)
-            // =========================================================================
+            },
             {
                 id: 121,
                 category: 'food',
@@ -1423,10 +1420,7 @@
                 jp: '気をつけてお帰りください。',
                 reading: 'คิ โอะ สึ-เคะ-เตะ โอะ-คะ-เอะ-ริ คุ-ดะ-ไซ',
                 tip: 'ประโยคอำลาที่อบอุ่น ใช้ได้ทั้งตอนแยกย้ายกันช่วงเย็นหรือตอนเดินทางกลับครับ'
-            }
-        ];// =========================================================================
-            // ชุดเพิ่มเติม: ตั้งแต่ลงเครื่อง ตม. ศุลกากร รับกระเป๋า จนเจอกรุ๊ปทัวร์ ข้อ 151 - 168
-            // =========================================================================
+            },
             {
                 id: 151,
                 category: 'travel',
@@ -1583,17 +1577,27 @@
         let currentSpeakingId = null;
         let searchDebounceTimer = null;
 
-        const categoryContainer = document.getElementById('category-container');
-        const phraseList = document.getElementById('phrase-list');
-        const paginationControls = document.getElementById('pagination-controls');
-        const loadMoreBtn = document.getElementById('load-more-btn');
-        const searchInput = document.getElementById('search-input');
-        const clearSearchBtn = document.getElementById('clear-search');
-        const resultCount = document.getElementById('result-count');
-        const emptyState = document.getElementById('empty-state');
-        const showModal = document.getElementById('show-modal');
+        let categoryContainer;
+        let phraseList;
+        let paginationControls;
+        let loadMoreBtn;
+        let searchInput;
+        let clearSearchBtn;
+        let resultCount;
+        let emptyState;
+        let showModal;
 
         function initApp() {
+            categoryContainer = document.getElementById('category-container');
+            phraseList = document.getElementById('phrase-list');
+            paginationControls = document.getElementById('pagination-controls');
+            loadMoreBtn = document.getElementById('load-more-btn');
+            searchInput = document.getElementById('search-input');
+            clearSearchBtn = document.getElementById('clear-search');
+            resultCount = document.getElementById('result-count');
+            emptyState = document.getElementById('empty-state');
+            showModal = document.getElementById('show-modal');
+
             renderCategories();
             renderPhrases();
             setupEventListeners();
